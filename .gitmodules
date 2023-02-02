@@ -1,0 +1,3 @@
+[submodule "dependencies/graphics-app-boilerplate"]
+	path = dependencies/graphics-app-boilerplate
+	url = https://github.com/vug/graphics-app-boilerplate.git
