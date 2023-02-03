@@ -57,12 +57,15 @@ void main () { outColor = vec4 (fragColor, 1.0); }
     if (shouldShowImGuiDemo)
       ImGui::ShowDemoWindow();
 
-    static glm::vec3 bgColor{1, 0, 0};
+    static glm::vec3 bgColor{42 / 256.0, 96 / 256.0, 87 / 256.0};
     ImGui::ColorEdit3("BG Color", glm::value_ptr(bgColor));
     ImGui::End();
 
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    shader.bind();
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     workshop.endFrame();
   }
