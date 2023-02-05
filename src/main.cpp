@@ -1,3 +1,5 @@
+#include "Assets.h"
+
 #include <Workshop/Assets.h>
 #include <Workshop/Shader.h>
 #include <Workshop/Texture.h>
@@ -23,8 +25,8 @@ int main()
   ws::Workshop workshop{800, 600, "Workshop App"};
 
   ws::Shader fullScreenShader{
-      std::filesystem::path{"assets/shaders/fullscreen_quad_without_vbo.vert"},
-      std::filesystem::path{"assets/shaders/fullscreen_quad_texture_sampler.frag"}};
+      std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
+      std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_texture_sampler.frag"}};
   ws::Shader triangleShader{
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo_vert.glsl"},
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo_frag.glsl"}};
