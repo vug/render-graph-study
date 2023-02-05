@@ -37,6 +37,10 @@ int main()
     workshop.beginFrame();
 
     ImGui::Begin("Main");
+    if(ImGui::Button("Reload shader")) {
+      fullScreenShader.reload();
+      triangleShader.reload();
+    }
     static bool shouldShowImGuiDemo = false;
     ImGui::Checkbox("Show Demo", &shouldShowImGuiDemo);
     if (shouldShowImGuiDemo)
