@@ -14,4 +14,27 @@ target_link_libraries(${TARGET} PRIVATE
   Workshop
 )
 
+# create "assets/" folder next to the target executable if not exists
+add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${TARGET}>/assets/)
+
+# Below command copies all (changed?) files into the same folder, but it flattens the hierarchy
+# add_custom_command(
+#   TARGET ${TARGET} POST_BUILD
+#   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#   ${WORKSHOP_ASSETS}
+#   $<TARGET_FILE_DIR:${TARGET}>/assets
+#   VERBATIM)
+
+# Copy each workshop asset, if changed, into new assets folder, keeping relative folder structure
+foreach(file ${WORKSHOP_ASSETS})
+  file(RELATIVE_PATH relPath ${WORKSHOP_ASSETS_FOLDER} ${file})
+  add_custom_command(
+    TARGET ${TARGET} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${file}
+    $<TARGET_FILE_DIR:${TARGET}>/assets/${relPath}
+    VERBATIM
+  )
+endforeach()
+
 target_compile_features(${TARGET} PRIVATE cxx_std_20)
