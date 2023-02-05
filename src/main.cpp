@@ -1,8 +1,8 @@
 #include <Assets.h>
-#include <Shader.h>
-#include <Texture.h>
-#include <Framebuffer.h>
-#include <Workshop.h>
+#include <Workshop/Shader.h>
+#include <Workshop/Texture.h>
+#include <Workshop/Framebuffer.h>
+#include <Workshop/Workshop.h>
 
 #include <glad/gl.h>
 #define GLFW_INCLUDE_NONE
