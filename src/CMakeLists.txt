@@ -25,9 +25,22 @@ add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_
 #   $<TARGET_FILE_DIR:${TARGET}>/assets
 #   VERBATIM)
 
-# Copy each workshop asset, if changed, into new assets folder, keeping relative folder structure
+# Copy each workshop asset, if changed, into new assets/workshop/ folder, keeping relative folder structure
 foreach(file ${WORKSHOP_ASSETS})
   file(RELATIVE_PATH relPath ${WORKSHOP_ASSETS_FOLDER} ${file})
+  add_custom_command(
+    TARGET ${TARGET} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${file}
+    $<TARGET_FILE_DIR:${TARGET}>/assets/workshop/${relPath}
+    VERBATIM
+  )
+endforeach()
+
+# Copy each app/target asset, if changed, in to new assets/ folder, keeping relative folder structure
+file(GLOB_RECURSE ASSETS ${CMAKE_SOURCE_DIR}/assets/*)
+foreach(file ${ASSETS})
+  file(RELATIVE_PATH relPath ${CMAKE_SOURCE_DIR}/assets ${file})
   add_custom_command(
     TARGET ${TARGET} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
