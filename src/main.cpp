@@ -21,44 +21,10 @@ int main()
 {
   ws::Workshop workshop{800, 600, "Workshop App"};
 
-  const char *fullScreenVertexShader = R"(
-#version 300 es
-#extension GL_EXT_separate_shader_objects : enable
-precision mediump float;
-
-layout (location = 0) out vec2 fragUV;
-
-vec2 positions[4] = vec2[](vec2(-1, -1), vec2(1, -1), vec2(1, 1), vec2(-1, 1));
-vec2 uvs[4] = vec2[](vec2(0, 0), vec2(1, 0), vec2(1, 1), vec2(0, 1));
-int indices[6] = int[](0, 1, 2, 0, 2, 3);
-
-void main ()
-{
-  int ix = indices[gl_VertexID];
-	gl_Position = vec4 (positions[ix], 0.0, 1.0);
-	fragUV = uvs[ix];
-}
-  )";
-
-  const char *fullScreenFragmentShader = R"(
-#version 300 es
-#extension GL_EXT_separate_shader_objects : enable
-precision mediump float;
-
-layout (location = 0) in vec2 uv;
-
-uniform sampler2D screenTexture;
-
-layout (location = 0) out vec4 outColor;
-
-void main () { 
-  // outColor = vec4(uv.x, uv.y, 0, 1.0); 
-  outColor.rgb = texture(screenTexture, uv).rgb;
-}
-  )";
-
-  ws::Shader fullScreenShader{fullScreenVertexShader, fullScreenFragmentShader};
-  ws::Shader triangleShader = ws::Shader{
+  ws::Shader fullScreenShader{
+      std::filesystem::path{"assets/shaders/fullscreen_quad_without_vbo.vert"},
+      std::filesystem::path{"assets/shaders/fullscreen_quad_texture_sampler.frag"}};
+  ws::Shader triangleShader{
       std::filesystem::path{"assets/workshop/shaders/triangle_without_vbo_vert.glsl"},
       std::filesystem::path{"assets/workshop/shaders/triangle_without_vbo_frag.glsl"}};
   ws::Framebuffer fbScene{800, 600}; // Render resolution. Can be smaller than window size.
