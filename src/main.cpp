@@ -1,4 +1,6 @@
 #include <Shader.h>
+#include <Texture.h>
+#include <Framebuffer.h>
 #include <Workshop.h>
 
 #include <glad/gl.h>
@@ -47,15 +49,19 @@ precision mediump float;
 
 layout (location = 0) in vec2 uv;
 
+uniform sampler2D screenTexture;
+
 layout (location = 0) out vec4 outColor;
 
 void main () { 
-  outColor = vec4(uv.x, uv.y, 0, 1.0); 
+  // outColor = vec4(uv.x, uv.y, 0, 1.0); 
+  outColor.rgb = texture(screenTexture, uv).rgb;
 }
   )";
 
   ws::Shader fullScreenShader{fullScreenVertexShader, fullScreenFragmentShader};
   ws::Shader triangleShader = makeTriangleShader();
+  ws::Framebuffer fbScene{800, 600}; // Render resolution. Can be smaller than window size.
 
   while (!workshop.shouldStop())
   {
@@ -71,14 +77,25 @@ void main () {
     ImGui::ColorEdit3("BG Color", glm::value_ptr(bgColor));
     ImGui::End();
 
+    // Scene Render Pass
+    fbScene.bind();
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    
+    glViewport(0, 0, 800, 600);
     triangleShader.bind();
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    triangleShader.unbind();
+    fbScene.unbind();
 
+    // Display final Framebuffer on screen
+    glClearColor(1, 0, 1, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    
+    glViewport(0, 0, 800, 600);
     fullScreenShader.bind();
+    fbScene.getColorAttachment().bind();
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    fbScene.getColorAttachment().unbind();
+    fullScreenShader.unbind();
 
     workshop.endFrame();
   }
