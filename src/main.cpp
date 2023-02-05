@@ -1,3 +1,4 @@
+#include <Assets.h>
 #include <Shader.h>
 #include <Texture.h>
 #include <Framebuffer.h>
@@ -25,8 +26,8 @@ int main()
       std::filesystem::path{"assets/shaders/fullscreen_quad_without_vbo.vert"},
       std::filesystem::path{"assets/shaders/fullscreen_quad_texture_sampler.frag"}};
   ws::Shader triangleShader{
-      std::filesystem::path{"assets/workshop/shaders/triangle_without_vbo_vert.glsl"},
-      std::filesystem::path{"assets/workshop/shaders/triangle_without_vbo_frag.glsl"}};
+      std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo_vert.glsl"},
+      std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo_frag.glsl"}};
   ws::Framebuffer fbScene{800, 600}; // Render resolution. Can be smaller than window size.
 
   while (!workshop.shouldStop())
