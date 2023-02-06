@@ -24,13 +24,20 @@ int main()
 {
   ws::Workshop workshop{800, 600, "Workshop App"};
 
-  ws::Shader fullScreenShader{
-      std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
-      std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_texture_sampler.frag"}};
   ws::Shader triangleShader{
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo_vert.glsl"},
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo_frag.glsl"}};
   ws::Framebuffer fbScene{800, 600}; // Render resolution. Can be smaller than window size.
+
+  ws::Shader grayscaleShader{
+      std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
+      std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_grayscale.frag"}};
+  ws::Framebuffer fbGrayscale{800, 600};
+
+  ws::Shader fullScreenShader{
+      std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
+      std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_texture_sampler.frag"}};
+
 
   while (!workshop.shouldStop())
   {
@@ -38,8 +45,9 @@ int main()
 
     ImGui::Begin("Main");
     if(ImGui::Button("Reload shader")) {
-      fullScreenShader.reload();
       triangleShader.reload();
+      grayscaleShader.reload();
+      fullScreenShader.reload();
     }
     static bool shouldShowImGuiDemo = false;
     ImGui::Checkbox("Show Demo", &shouldShowImGuiDemo);
@@ -60,14 +68,25 @@ int main()
     triangleShader.unbind();
     fbScene.unbind();
 
+    // Grayscale Pass Post-Process
+    fbGrayscale.bind();
+    glClearColor(1, 0, 1, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, 800, 600);
+    grayscaleShader.bind();
+    fbScene.getColorAttachment().bind();
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    fbScene.getColorAttachment().unbind();
+    fbGrayscale.unbind();
+
     // Display final Framebuffer on screen
     glClearColor(1, 0, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, 800, 600);
     fullScreenShader.bind();
-    fbScene.getColorAttachment().bind();
+    fbGrayscale.getColorAttachment().bind();
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    fbScene.getColorAttachment().unbind();
+    fbGrayscale.getColorAttachment().unbind();
     fullScreenShader.unbind();
 
     workshop.endFrame();
