@@ -1,9 +1,9 @@
 #include "Assets.h"
 
 #include <Workshop/Assets.h>
+#include <Workshop/Framebuffer.h>
 #include <Workshop/Shader.h>
 #include <Workshop/Texture.h>
-#include <Workshop/Framebuffer.h>
 #include <Workshop/Workshop.h>
 
 #include <glad/gl.h>
@@ -20,14 +20,13 @@
 
 #include <iostream>
 
-int main()
-{
+int main() {
   ws::Workshop workshop{800, 600, "Workshop App"};
 
   ws::Shader triangleShader{
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.vert"},
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.frag"}};
-  ws::Framebuffer fbScene{800, 600}; // Render resolution. Can be smaller than window size.
+  ws::Framebuffer fbScene{800, 600};  // Render resolution. Can be smaller than window size.
 
   ws::Shader grayscaleShader{
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
@@ -41,13 +40,11 @@ int main()
   uint32_t vao;
   glGenVertexArrays(1, &vao);
 
-  while (!workshop.shouldStop())
-  {
+  while (!workshop.shouldStop()) {
     workshop.beginFrame();
 
     ImGui::Begin("Main");
-    if (ImGui::Button("Reload shader"))
-    {
+    if (ImGui::Button("Reload shader")) {
       triangleShader.reload();
       grayscaleShader.reload();
       fullScreenShader.reload();
