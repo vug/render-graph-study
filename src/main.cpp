@@ -38,13 +38,16 @@ int main()
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_texture_sampler.frag"}};
 
+  uint32_t vao;
+  glGenVertexArrays(1, &vao);
 
   while (!workshop.shouldStop())
   {
     workshop.beginFrame();
 
     ImGui::Begin("Main");
-    if(ImGui::Button("Reload shader")) {
+    if (ImGui::Button("Reload shader"))
+    {
       triangleShader.reload();
       grayscaleShader.reload();
       fullScreenShader.reload();
@@ -64,7 +67,9 @@ int main()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, 800, 600);
     triangleShader.bind();
+    glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
     triangleShader.unbind();
     fbScene.unbind();
 
@@ -75,7 +80,9 @@ int main()
     glViewport(0, 0, 800, 600);
     grayscaleShader.bind();
     fbScene.getColorAttachment().bind();
+    glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
     fbScene.getColorAttachment().unbind();
     fbGrayscale.unbind();
 
@@ -85,7 +92,9 @@ int main()
     glViewport(0, 0, 800, 600);
     fullScreenShader.bind();
     fbGrayscale.getColorAttachment().bind();
+    glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
     fbGrayscale.getColorAttachment().unbind();
     fullScreenShader.unbind();
 
