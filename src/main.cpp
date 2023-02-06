@@ -25,8 +25,8 @@ int main()
   ws::Workshop workshop{800, 600, "Workshop App"};
 
   ws::Shader triangleShader{
-      std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo_vert.glsl"},
-      std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo_frag.glsl"}};
+      std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.vert"},
+      std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.frag"}};
   ws::Framebuffer fbScene{800, 600}; // Render resolution. Can be smaller than window size.
 
   ws::Shader grayscaleShader{
