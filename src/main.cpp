@@ -62,6 +62,9 @@ int main() {
     static float blurScale = 1.0f;
     ImGui::SliderFloat("Blur Scale", &blurScale, 0.f, 10.f);
 
+    static int numBlurPasses = 1;
+    ImGui::SliderInt("# of Blur Passes", &numBlurPasses, 0, 10);
+
     static bool shouldShowImGuiDemo = false;
     ImGui::Checkbox("Show Demo", &shouldShowImGuiDemo);
     if (shouldShowImGuiDemo)
@@ -80,35 +83,29 @@ int main() {
     triangleShader.unbind();
     fbScene.unbind();
 
-    // Blur Vertical Pass Post-Process
-    fbBlur.bind();
-    glClearColor(1, 0, 1, 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 0, 800, 600);
-    blurShader.bind();
-    blurShader.SetScalar1f("u_Scale", blurScale);
-    blurShader.SetScalar1f("u_Horizontal", 0.0f);
-    fbScene.getColorAttachment().bind();
-    glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
-    fbScene.getColorAttachment().unbind();
-    blurShader.unbind();
-    fbBlur.unbind();
-
-    // Blur Horizontal Pass Post-Process
-    fbBlur.bind();
-    glViewport(0, 0, 800, 600);
-    blurShader.bind();
-    blurShader.SetScalar1f("u_Scale", blurScale);
-    blurShader.SetScalar1f("u_Horizontal", 1.0f);
-    fbBlur.getColorAttachment().bind();
-    glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
-    fbBlur.getColorAttachment().unbind();
-    blurShader.unbind();
-    fbBlur.unbind();
+    // Blur Pass Post-Process
+    const int n = 2 * numBlurPasses;
+    for (int i = 0; i < n; ++i) {
+      const bool isFirst = i == 0;
+      ws::Framebuffer& fbInput = isFirst ? fbScene : fbBlur;
+      fbBlur.bind();
+      if (isFirst) {
+        glClearColor(1, 0, 1, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      }
+      glViewport(0, 0, 800, 600);
+      blurShader.bind();
+      blurShader.SetScalar1f("u_Scale", blurScale);
+      const float isHorizontalPass = static_cast<float>(i % 2 == 0);
+      blurShader.SetScalar1f("u_Horizontal", isHorizontalPass);
+      fbInput.getColorAttachment().bind();
+      glBindVertexArray(vao);
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      glBindVertexArray(0);
+      fbInput.getColorAttachment().unbind();
+      blurShader.unbind();
+      fbBlur.unbind();
+    }
 
     // // Grayscale Pass Post-Process
     // fbGrayscale.bind();
