@@ -5,6 +5,7 @@
 #include <Workshop/Model.hpp>
 #include <Workshop/Shader.hpp>
 #include <Workshop/Texture.hpp>
+#include <Workshop/Transform.hpp>
 #include <Workshop/Workshop.hpp>
 
 #include <glad/gl.h>
@@ -49,8 +50,9 @@ int main() {
   uint32_t vao;
   glGenVertexArrays(1, &vao);
 
-  ws::DefaultMeshData meshData = ws::loadOBJ(ws::ASSETS_FOLDER / "models/sphere_ico.obj");
+  ws::DefaultMeshData meshData = ws::loadOBJ(ws::ASSETS_FOLDER / "models/suzanne.obj");
   ws::Mesh mesh{meshData};
+  ws::Transform meshTransform{glm::vec3{0.1, 0.2, 0.3}, glm::vec3{0, 1, 0}, 0, glm::vec3{0.2, 0.2, 0.2}};
 
   while (!workshop.shouldStop()) {
     workshop.beginFrame();
@@ -78,6 +80,10 @@ int main() {
       ImGui::ShowDemoWindow();
     ImGui::End();
 
+    static float t = 0.0f;
+    meshTransform.rotation = glm::angleAxis(t, glm::vec3{0, 1, 0});
+    t += 0.01f;
+
     // Scene Render Pass
     fbScene.bind();
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1);
@@ -91,6 +97,7 @@ int main() {
 
     solidColorShader.bind();
     mesh.bind();
+    solidColorShader.setMatrix4fv("u_ModelViewPerspective", glm::value_ptr(meshTransform.getWorldFromObjectMatrix()));
     mesh.draw();
     mesh.unbind();
     solidColorShader.unbind();
