@@ -1,6 +1,7 @@
 #include "Assets.hpp"
 
 #include <Workshop/Assets.hpp>
+#include <Workshop/Camera.hpp>
 #include <Workshop/Framebuffer.hpp>
 #include <Workshop/Model.hpp>
 #include <Workshop/Shader.hpp>
@@ -54,6 +55,9 @@ int main() {
   ws::Mesh mesh{meshData};
   ws::Transform meshTransform{glm::vec3{0.1, 0.2, 0.3}, glm::vec3{0, 1, 0}, 0, glm::vec3{0.2, 0.2, 0.2}};
 
+  ws::PerspectiveCamera3D cam;
+  ws::AutoOrbitingCamera3DViewController camController{cam};
+
   while (!workshop.shouldStop()) {
     workshop.beginFrame();
 
@@ -97,7 +101,9 @@ int main() {
 
     solidColorShader.bind();
     mesh.bind();
-    solidColorShader.setMatrix4fv("u_ModelViewPerspective", glm::value_ptr(meshTransform.getWorldFromObjectMatrix()));
+    const glm::mat4 mvp = cam.getProjectionFromView() * cam.getViewFromWorld() * meshTransform.getWorldFromObjectMatrix();
+    camController.update(0.01f);
+    solidColorShader.setMatrix4fv("u_ModelViewPerspective", glm::value_ptr(mvp));
     mesh.draw();
     mesh.unbind();
     solidColorShader.unbind();
