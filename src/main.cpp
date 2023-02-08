@@ -2,6 +2,7 @@
 
 #include <Workshop/Assets.h>
 #include <Workshop/Framebuffer.h>
+#include <Workshop/Model.h>
 #include <Workshop/Shader.h>
 #include <Workshop/Texture.h>
 #include <Workshop/Workshop.h>
@@ -26,6 +27,9 @@ int main() {
   ws::Shader triangleShader{
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.vert"},
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.frag"}};
+  ws::Shader solidColorShader{
+      std::filesystem::path{ASSETS_FOLDER / "shaders/solid_color.vert"},
+      std::filesystem::path{ASSETS_FOLDER / "shaders/solid_color.frag"}};
   ws::Framebuffer fbScene{800, 600};  // Render resolution. Can be smaller than window size.
 
   ws::Shader blurShader{
@@ -44,6 +48,9 @@ int main() {
 
   uint32_t vao;
   glGenVertexArrays(1, &vao);
+
+  ws::DefaultMeshData meshData = ws::loadOBJ(ws::ASSETS_FOLDER / "models/sphere_ico.obj");
+  ws::Mesh mesh{meshData};
 
   while (!workshop.shouldStop()) {
     workshop.beginFrame();
@@ -76,11 +83,17 @@ int main() {
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, 800, 600);
-    triangleShader.bind();
-    glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
-    triangleShader.unbind();
+    // triangleShader.bind();
+    // glBindVertexArray(vao);
+    // glDrawArrays(GL_TRIANGLES, 0, 3);
+    // glBindVertexArray(0);
+    // triangleShader.unbind();
+
+    solidColorShader.bind();
+    mesh.bind();
+    mesh.draw();
+    mesh.unbind();
+    solidColorShader.unbind();
     fbScene.unbind();
 
     // Blur Pass Post-Process
