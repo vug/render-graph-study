@@ -15,7 +15,7 @@ target_link_libraries(${TARGET} PRIVATE
 )
 
 set(ASSETS_FOLDER ${PROJECT_SOURCE_DIR}/assets)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Assets.h.in include/Assets.h @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Assets.hpp.in include/Assets.hpp @ONLY)
 target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 target_compile_features(${TARGET} PRIVATE cxx_std_20)

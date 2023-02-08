@@ -1,11 +1,11 @@
-#include "Assets.h"
+#include "Assets.hpp"
 
-#include <Workshop/Assets.h>
-#include <Workshop/Framebuffer.h>
-#include <Workshop/Model.h>
-#include <Workshop/Shader.h>
-#include <Workshop/Texture.h>
-#include <Workshop/Workshop.h>
+#include <Workshop/Assets.hpp>
+#include <Workshop/Framebuffer.hpp>
+#include <Workshop/Model.hpp>
+#include <Workshop/Shader.hpp>
+#include <Workshop/Texture.hpp>
+#include <Workshop/Workshop.hpp>
 
 #include <glad/gl.h>
 #define GLFW_INCLUDE_NONE
