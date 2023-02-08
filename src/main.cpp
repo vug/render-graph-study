@@ -56,7 +56,9 @@ int main() {
   ws::Transform meshTransform{glm::vec3{0.1, 0.2, 0.3}, glm::vec3{0, 1, 0}, 0, glm::vec3{0.2, 0.2, 0.2}};
 
   ws::PerspectiveCamera3D cam;
-  ws::AutoOrbitingCamera3DViewController camController{cam};
+  ws::AutoOrbitingCamera3DViewController orbitingCamController{cam};
+  // cam.position = glm::vec3{0, 0, -5};
+  // ws::ManualCamera3DViewController manualCamController{cam};
 
   while (!workshop.shouldStop()) {
     workshop.beginFrame();
@@ -88,6 +90,16 @@ int main() {
     meshTransform.rotation = glm::angleAxis(t, glm::vec3{0, 1, 0});
     t += 0.01f;
 
+    {
+      orbitingCamController.update(0.01f);
+
+      // double cx, cy;
+      // glfwGetCursorPos(workshop.getGLFWwindow(), &cx, &cy);
+      // glm::vec2 cursorPos{cx, cy};
+      // int glfwMouseInput = (glfwGetMouseButton(workshop.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) ? 0 : ((glfwGetMouseButton(workshop.getGLFWwindow(), 1) == GLFW_PRESS) ? GLFW_MOUSE_BUTTON_RIGHT : -1);
+      // manualCamController.update(cursorPos, glfwMouseInput);
+    }
+
     // Scene Render Pass
     fbScene.bind();
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1);
@@ -102,7 +114,6 @@ int main() {
     solidColorShader.bind();
     mesh.bind();
     const glm::mat4 mvp = cam.getProjectionFromView() * cam.getViewFromWorld() * meshTransform.getWorldFromObjectMatrix();
-    camController.update(0.01f);
     solidColorShader.setMatrix4fv("u_ModelViewPerspective", glm::value_ptr(mvp));
     mesh.draw();
     mesh.unbind();
