@@ -32,6 +32,9 @@ int main() {
   ws::Shader solidColorShader{
       std::filesystem::path{ASSETS_FOLDER / "shaders/solid_color.vert"},
       std::filesystem::path{ASSETS_FOLDER / "shaders/solid_color.frag"}};
+  ws::Shader diffuseShader{
+      std::filesystem::path{ASSETS_FOLDER / "shaders/diffuse.vert"},
+      std::filesystem::path{ASSETS_FOLDER / "shaders/diffuse.frag"}};
   ws::Framebuffer fbScene{800, 600};  // Render resolution. Can be smaller than window size.
 
   ws::Shader blurShader{
@@ -65,10 +68,12 @@ int main() {
 
     ImGui::Begin("Main");
     if (ImGui::Button("Reload shader")) {
-      triangleShader.reload();
+      // triangleShader.reload();
+      solidColorShader.reload();
+      diffuseShader.reload();
       blurShader.reload();
-      grayscaleShader.reload();
-      fullScreenShader.reload();
+      // grayscaleShader.reload();
+      // fullScreenShader.reload();
     }
 
     static glm::vec3 bgColor{42 / 256.0, 96 / 256.0, 87 / 256.0};
@@ -100,6 +105,9 @@ int main() {
       // manualCamController.update(cursorPos, glfwMouseInput);
     }
 
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    
     // Scene Render Pass
     fbScene.bind();
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1);
@@ -111,13 +119,14 @@ int main() {
     // glBindVertexArray(0);
     // triangleShader.unbind();
 
-    solidColorShader.bind();
+    diffuseShader.bind();
     mesh.bind();
-    const glm::mat4 mvp = cam.getProjectionFromView() * cam.getViewFromWorld() * meshTransform.getWorldFromObjectMatrix();
-    solidColorShader.setMatrix4fv("u_ModelViewPerspective", glm::value_ptr(mvp));
+    diffuseShader.setMatrix4fv("worldFromObject", glm::value_ptr(meshTransform.getWorldFromObjectMatrix()));
+    diffuseShader.setMatrix4fv("viewFromWorld", glm::value_ptr(cam.getViewFromWorld()));
+    diffuseShader.setMatrix4fv("projectionFromView", glm::value_ptr(cam.getProjectionFromView()));
     mesh.draw();
     mesh.unbind();
-    solidColorShader.unbind();
+    diffuseShader.unbind();
     fbScene.unbind();
 
     // Blur Pass Post-Process
