@@ -8,7 +8,9 @@ else()
 endif()
 
 add_executable(${TARGET}
-  main.cpp)
+  main.cpp
+  Lights.hpp
+)
 
 target_link_libraries(${TARGET} PRIVATE
   Workshop

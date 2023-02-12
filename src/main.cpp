@@ -1,4 +1,5 @@
 #include "Assets.hpp"
+#include "Lights.hpp"
 
 #include <Workshop/Assets.hpp>
 #include <Workshop/Camera.hpp>
@@ -21,7 +22,9 @@
 // #include <tiny_obj_loader.h>
 // #include <vivid/vivid.h>
 
+#include <fmt/core.h>
 #include <iostream>
+#include <vector>
 
 int main() {
   ws::Workshop workshop{800, 600, "Workshop App"};
@@ -63,6 +66,11 @@ int main() {
   // cam.position = glm::vec3{0, 0, -5};
   // ws::ManualCamera3DViewController manualCamController{cam};
 
+  std::vector<PointLight> lights;
+  lights.push_back({.position = {0, 5, 0}, .color = {1, 1, 1}, .intensity = 1.0f});
+  lights.push_back({.position = {5, 0, -5}, .color = {1, 0.5, 0.5}, .intensity = 1.0f});
+  lights.push_back({.position = {-5, 0, 5}, .color = {0.5, 0.5, 1}, .intensity = 1.0f});
+
   while (!workshop.shouldStop()) {
     workshop.beginFrame();
 
@@ -84,6 +92,12 @@ int main() {
 
     static int numBlurPasses = 1;
     ImGui::SliderInt("# of Blur Passes", &numBlurPasses, 0, 10);
+
+    
+    ImGui::SliderFloat("light[0].intensity", &lights[0].intensity, 0.f, 1.f);
+    ImGui::SliderFloat("light[1].intensity", &lights[1].intensity, 0.f, 1.f);
+    ImGui::SliderFloat("light[2].intensity", &lights[2].intensity, 0.f, 1.f);
+    ImGui::Separator();
 
     static bool shouldShowImGuiDemo = false;
     ImGui::Checkbox("Show Demo", &shouldShowImGuiDemo);
@@ -107,7 +121,7 @@ int main() {
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    
+
     // Scene Render Pass
     fbScene.bind();
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1);
@@ -124,6 +138,15 @@ int main() {
     diffuseShader.setMatrix4fv("worldFromObject", glm::value_ptr(meshTransform.getWorldFromObjectMatrix()));
     diffuseShader.setMatrix4fv("viewFromWorld", glm::value_ptr(cam.getViewFromWorld()));
     diffuseShader.setMatrix4fv("projectionFromView", glm::value_ptr(cam.getProjectionFromView()));
+    for (size_t i = 0; i < lights.size(); ++i) {
+      const PointLight& light = lights[i];
+      std::string color = fmt::format("pointLights[{}].color", i);
+      diffuseShader.setVector3fv(color.c_str(), glm::value_ptr(light.color));
+      std::string position = fmt::format("pointLights[{}].position", i);
+      diffuseShader.setVector3fv(position.c_str(), glm::value_ptr(light.position));
+      std::string intensity = fmt::format("pointLights[{}].intensity", i);
+      diffuseShader.SetScalar1f(intensity.c_str(), light.intensity);
+    }
     mesh.draw();
     mesh.unbind();
     diffuseShader.unbind();

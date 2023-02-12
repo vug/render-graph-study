@@ -1,11 +1,17 @@
 #version 430
 
-uniform vec4 u_Color = vec4(1.0, 1.0, 0.0, 1.0);
-
 in VertexData {
   vec3 worldPosition;
   vec3 worldNormal;
 } v;
+
+uniform vec4 u_Color = vec4(1.0, 1.0, 0.0, 1.0);
+struct PointLight {
+  vec3 position;
+  vec3 color;
+  float intensity;
+};
+uniform PointLight[3] pointLights;
 
 layout (location = 0) out vec4 outColor;
 
@@ -15,7 +21,12 @@ const float lightIntensity = 1.0;
 
 void main() {
     vec3 wNormal = normalize(v.worldNormal);
-    vec3 lightDir = normalize(v.worldPosition - lightPosition);
-    vec3 diffuse = u_Color.rgb * lightIntensity * lightColor * max(dot(-lightDir, wNormal), 0);
+    vec3 pointDiffuse = vec3(0);
+    for (int i = 0; i < 3; i++) {
+      PointLight light = pointLights[i];
+      vec3 lightDir = normalize(v.worldPosition - light.position);
+      pointDiffuse += light.intensity * light.color * max(dot(-lightDir, wNormal), 0);
+    }
+    vec3 diffuse = u_Color.rgb * pointDiffuse;
     outColor = vec4(diffuse, 1);
 }
