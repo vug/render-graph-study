@@ -127,25 +127,18 @@ int main() {
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, 800, 600);
-    // triangleShader.bind();
-    // glBindVertexArray(vao);
-    // glDrawArrays(GL_TRIANGLES, 0, 3);
-    // glBindVertexArray(0);
-    // triangleShader.unbind();
 
     diffuseShader.bind();
     mesh.bind();
     diffuseShader.setMatrix4fv("worldFromObject", glm::value_ptr(meshTransform.getWorldFromObjectMatrix()));
     diffuseShader.setMatrix4fv("viewFromWorld", glm::value_ptr(cam.getViewFromWorld()));
     diffuseShader.setMatrix4fv("projectionFromView", glm::value_ptr(cam.getProjectionFromView()));
+    diffuseShader.setScalar1i("numPointLights", lights.size());
     for (size_t i = 0; i < lights.size(); ++i) {
       const PointLight& light = lights[i];
-      std::string color = fmt::format("pointLights[{}].color", i);
-      diffuseShader.setVector3fv(color.c_str(), glm::value_ptr(light.color));
-      std::string position = fmt::format("pointLights[{}].position", i);
-      diffuseShader.setVector3fv(position.c_str(), glm::value_ptr(light.position));
-      std::string intensity = fmt::format("pointLights[{}].intensity", i);
-      diffuseShader.SetScalar1f(intensity.c_str(), light.intensity);
+      diffuseShader.setVector3fv(fmt::format("pointLights[{}].color", i).c_str(), glm::value_ptr(light.color));
+      diffuseShader.setVector3fv(fmt::format("pointLights[{}].position", i).c_str(), glm::value_ptr(light.position));
+      diffuseShader.setScalar1f(fmt::format("pointLights[{}].intensity", i).c_str(), light.intensity);
     }
     mesh.draw();
     mesh.unbind();
@@ -164,9 +157,9 @@ int main() {
       }
       glViewport(0, 0, 800, 600);
       blurShader.bind();
-      blurShader.SetScalar1f("u_Scale", blurScale);
+      blurShader.setScalar1f("u_Scale", blurScale);
       const float isHorizontalPass = static_cast<float>(i % 2 == 0);
-      blurShader.SetScalar1f("u_Horizontal", isHorizontalPass);
+      blurShader.setScalar1f("u_Horizontal", isHorizontalPass);
       fbInput.getColorAttachment().bind();
       glBindVertexArray(vao);
       glDrawArrays(GL_TRIANGLES, 0, 6);
