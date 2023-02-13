@@ -67,9 +67,9 @@ int main() {
   // ws::ManualCamera3DViewController manualCamController{cam};
 
   std::vector<PointLight> lights;
-  lights.push_back({.position = {0, 5, 0}, .color = {1, 1, 1}, .intensity = 1.0f});
-  lights.push_back({.position = {5, 0, -5}, .color = {1, 0.5, 0.5}, .intensity = 1.0f});
-  lights.push_back({.position = {-5, 0, 5}, .color = {0.5, 0.5, 1}, .intensity = 1.0f});
+  lights.push_back({.position = {0, 2, 0}, .color = {1, 1, 1}, .intensity = 1.0f});
+  lights.push_back({.position = {2, 0, -2}, .color = {1, 0.5, 0.5}, .intensity = 1.0f});
+  lights.push_back({.position = {-2, 0, 2}, .color = {0.5, 0.5, 1}, .intensity = 1.0f});
 
   while (!workshop.shouldStop()) {
     workshop.beginFrame();
