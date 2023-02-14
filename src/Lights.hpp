@@ -19,3 +19,19 @@ class DirectionalLight {
 
   void uploadToShader(const ws::Shader& shader, int ix) const;
 };
+
+class HemisphericalLight {
+ public:
+  glm::vec3 northColor;
+  glm::vec3 southColor;
+  float intensity;
+
+  void uploadToShader(const ws::Shader& shader) const;
+};
+
+class AmbientLight {
+ public:
+  glm::vec3 color;
+
+  void uploadToShader(const ws::Shader& shader) const;
+};
