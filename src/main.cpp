@@ -27,6 +27,7 @@
 #include <vector>
 
 struct Scene {
+  std::vector<DirectionalLight> directionalLights;
   std::vector<PointLight> pointLights;
 };
 
@@ -72,9 +73,10 @@ int main() {
   // cam.position = glm::vec3{0, 0, -5};
   // ws::ManualCamera3DViewController manualCamController{cam};
 
-  scene.pointLights.push_back({.position = {0, 2, 0}, .color = {1, 1, 1}, .intensity = 1.0f});
-  scene.pointLights.push_back({.position = {2, 0, -2}, .color = {1, 0.5, 0.5}, .intensity = 1.0f});
-  scene.pointLights.push_back({.position = {-2, 0, 2}, .color = {0.5, 0.5, 1}, .intensity = 1.0f});
+  // scene.pointLights.push_back({.position = {0, 2, 0}, .color = {1, 1, 1}, .intensity = 1.0f});
+  scene.directionalLights.push_back({.direction = {0, -2, 0}, .color = {1, 1, 1}, .intensity = 0.5f});
+  scene.pointLights.push_back({.position = {2, 0, -2}, .color = {1, 0.5, 0.5}, .intensity = 2.0f});
+  scene.pointLights.push_back({.position = {-2, 0, 2}, .color = {0.5, 0.5, 1}, .intensity = 2.0f});
 
   while (!workshop.shouldStop()) {
     workshop.beginFrame();
@@ -98,10 +100,9 @@ int main() {
     static int numBlurPasses = 1;
     ImGui::SliderInt("# of Blur Passes", &numBlurPasses, 0, 10);
 
-    
-    ImGui::SliderFloat("light[0].intensity", &scene.pointLights[0].intensity, 0.f, 1.f);
-    ImGui::SliderFloat("light[1].intensity", &scene.pointLights[1].intensity, 0.f, 1.f);
-    ImGui::SliderFloat("light[2].intensity", &scene.pointLights[2].intensity, 0.f, 1.f);
+    ImGui::SliderFloat("directionalLight[0].intensity", &scene.directionalLights[0].intensity, 0.f, 3.f);
+    ImGui::SliderFloat("pointLight[0].intensity", &scene.pointLights[0].intensity, 0.f, 3.f);
+    ImGui::SliderFloat("pointLight[1].intensity", &scene.pointLights[1].intensity, 0.f, 3.f);
     ImGui::Separator();
 
     static bool shouldShowImGuiDemo = false;
@@ -139,12 +140,10 @@ int main() {
     diffuseShader.setMatrix4fv("viewFromWorld", glm::value_ptr(cam.getViewFromWorld()));
     diffuseShader.setMatrix4fv("projectionFromView", glm::value_ptr(cam.getProjectionFromView()));
     diffuseShader.setScalar1i("numPointLights", scene.pointLights.size());
-    for (size_t i = 0; i < scene.pointLights.size(); ++i) {
-      const PointLight& light = scene.pointLights[i];
-      diffuseShader.setVector3fv(fmt::format("pointLights[{}].color", i).c_str(), glm::value_ptr(light.color));
-      diffuseShader.setVector3fv(fmt::format("pointLights[{}].position", i).c_str(), glm::value_ptr(light.position));
-      diffuseShader.setScalar1f(fmt::format("pointLights[{}].intensity", i).c_str(), light.intensity);
-    }
+    for (size_t i = 0; i < scene.pointLights.size(); ++i)
+      scene.pointLights[i].uploadToShader(diffuseShader, i);
+    for (size_t i = 0; i < scene.directionalLights.size(); ++i)
+      scene.directionalLights[i].uploadToShader(diffuseShader, i);
     mesh.draw();
     mesh.unbind();
     diffuseShader.unbind();

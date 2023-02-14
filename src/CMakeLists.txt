@@ -9,7 +9,7 @@ endif()
 
 add_executable(${TARGET}
   main.cpp
-  Lights.hpp
+  Lights.hpp Lights.cpp
 )
 
 target_link_libraries(${TARGET} PRIVATE
