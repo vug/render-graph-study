@@ -26,6 +26,10 @@
 #include <iostream>
 #include <vector>
 
+struct Scene {
+  std::vector<PointLight> pointLights;
+};
+
 int main() {
   ws::Workshop workshop{800, 600, "Workshop App"};
 
@@ -57,6 +61,8 @@ int main() {
   uint32_t vao;
   glGenVertexArrays(1, &vao);
 
+  Scene scene;
+
   ws::DefaultMeshData meshData = ws::loadOBJ(ws::ASSETS_FOLDER / "models/suzanne.obj");
   ws::Mesh mesh{meshData};
   ws::Transform meshTransform{glm::vec3{0.1, 0.2, 0.3}, glm::vec3{0, 1, 0}, 0, glm::vec3{0.2, 0.2, 0.2}};
@@ -66,10 +72,9 @@ int main() {
   // cam.position = glm::vec3{0, 0, -5};
   // ws::ManualCamera3DViewController manualCamController{cam};
 
-  std::vector<PointLight> lights;
-  lights.push_back({.position = {0, 2, 0}, .color = {1, 1, 1}, .intensity = 1.0f});
-  lights.push_back({.position = {2, 0, -2}, .color = {1, 0.5, 0.5}, .intensity = 1.0f});
-  lights.push_back({.position = {-2, 0, 2}, .color = {0.5, 0.5, 1}, .intensity = 1.0f});
+  scene.pointLights.push_back({.position = {0, 2, 0}, .color = {1, 1, 1}, .intensity = 1.0f});
+  scene.pointLights.push_back({.position = {2, 0, -2}, .color = {1, 0.5, 0.5}, .intensity = 1.0f});
+  scene.pointLights.push_back({.position = {-2, 0, 2}, .color = {0.5, 0.5, 1}, .intensity = 1.0f});
 
   while (!workshop.shouldStop()) {
     workshop.beginFrame();
@@ -94,9 +99,9 @@ int main() {
     ImGui::SliderInt("# of Blur Passes", &numBlurPasses, 0, 10);
 
     
-    ImGui::SliderFloat("light[0].intensity", &lights[0].intensity, 0.f, 1.f);
-    ImGui::SliderFloat("light[1].intensity", &lights[1].intensity, 0.f, 1.f);
-    ImGui::SliderFloat("light[2].intensity", &lights[2].intensity, 0.f, 1.f);
+    ImGui::SliderFloat("light[0].intensity", &scene.pointLights[0].intensity, 0.f, 1.f);
+    ImGui::SliderFloat("light[1].intensity", &scene.pointLights[1].intensity, 0.f, 1.f);
+    ImGui::SliderFloat("light[2].intensity", &scene.pointLights[2].intensity, 0.f, 1.f);
     ImGui::Separator();
 
     static bool shouldShowImGuiDemo = false;
@@ -133,9 +138,9 @@ int main() {
     diffuseShader.setMatrix4fv("worldFromObject", glm::value_ptr(meshTransform.getWorldFromObjectMatrix()));
     diffuseShader.setMatrix4fv("viewFromWorld", glm::value_ptr(cam.getViewFromWorld()));
     diffuseShader.setMatrix4fv("projectionFromView", glm::value_ptr(cam.getProjectionFromView()));
-    diffuseShader.setScalar1i("numPointLights", lights.size());
-    for (size_t i = 0; i < lights.size(); ++i) {
-      const PointLight& light = lights[i];
+    diffuseShader.setScalar1i("numPointLights", scene.pointLights.size());
+    for (size_t i = 0; i < scene.pointLights.size(); ++i) {
+      const PointLight& light = scene.pointLights[i];
       diffuseShader.setVector3fv(fmt::format("pointLights[{}].color", i).c_str(), glm::value_ptr(light.color));
       diffuseShader.setVector3fv(fmt::format("pointLights[{}].position", i).c_str(), glm::value_ptr(light.position));
       diffuseShader.setScalar1f(fmt::format("pointLights[{}].intensity", i).c_str(), light.intensity);
