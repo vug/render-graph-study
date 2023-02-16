@@ -35,12 +35,7 @@ struct Scene {
 
 int main() {
   ws::Workshop workshop{800, 600, "Workshop App"};
-  glm::uvec2 winSize;
-  {
-    int x, y;
-    glfwGetWindowSize(workshop.getGLFWwindow(), &x, &y);
-    winSize = {x, y};
-  }
+  glm::uvec2 winSize{workshop.getWindowSize()};
 
   ws::Shader triangleShader{
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.vert"},
@@ -89,15 +84,11 @@ int main() {
 
   while (!workshop.shouldStop()) {
     workshop.beginFrame();
-    {
-      int x, y;
-      glfwGetWindowSize(workshop.getGLFWwindow(), &x, &y);
-      winSize = {x, y};
-    }
+    winSize = workshop.getWindowSize();
     fbScene.resizeIfNeeded(winSize.x, winSize.y);
     fbBlur.resizeIfNeeded(winSize.x, winSize.y);
     fbGrayscale.resizeIfNeeded(winSize.x, winSize.y);
-    
+
     ImGui::Begin("Main");
     if (ImGui::Button("Reload shader")) {
       // triangleShader.reload();
