@@ -35,6 +35,12 @@ struct Scene {
 
 int main() {
   ws::Workshop workshop{800, 600, "Workshop App"};
+  glm::uvec2 winSize;
+  {
+    int x, y;
+    glfwGetWindowSize(workshop.getGLFWwindow(), &x, &y);
+    winSize = {x, y};
+  }
 
   ws::Shader triangleShader{
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.vert"},
@@ -45,17 +51,17 @@ int main() {
   ws::Shader diffuseShader{
       std::filesystem::path{ASSETS_FOLDER / "shaders/diffuse.vert"},
       std::filesystem::path{ASSETS_FOLDER / "shaders/diffuse.frag"}};
-  ws::Framebuffer fbScene{800, 600};  // Render resolution. Can be smaller than window size.
+  ws::Framebuffer fbScene{winSize.x, winSize.y};  // Render resolution. Can be smaller than window size.
 
   ws::Shader blurShader{
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
       std::filesystem::path{ASSETS_FOLDER / "shaders/blur.frag"}};
-  ws::Framebuffer fbBlur{800, 600};
+  ws::Framebuffer fbBlur{winSize.x, winSize.y};
 
   ws::Shader grayscaleShader{
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_grayscale.frag"}};
-  ws::Framebuffer fbGrayscale{800, 600};
+  ws::Framebuffer fbGrayscale{winSize.x, winSize.y};
 
   ws::Shader fullScreenShader{
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
@@ -83,7 +89,15 @@ int main() {
 
   while (!workshop.shouldStop()) {
     workshop.beginFrame();
-
+    {
+      int x, y;
+      glfwGetWindowSize(workshop.getGLFWwindow(), &x, &y);
+      winSize = {x, y};
+    }
+    fbScene.resizeIfNeeded(winSize.x, winSize.y);
+    fbBlur.resizeIfNeeded(winSize.x, winSize.y);
+    fbGrayscale.resizeIfNeeded(winSize.x, winSize.y);
+    
     ImGui::Begin("Main");
     if (ImGui::Button("Reload shader")) {
       // triangleShader.reload();
@@ -122,6 +136,7 @@ int main() {
 
     {
       orbitingCamController.update(0.01f);
+      cam.aspectRatio = static_cast<float>(winSize.x) / winSize.y;
 
       // double cx, cy;
       // glfwGetCursorPos(workshop.getGLFWwindow(), &cx, &cy);
@@ -137,7 +152,7 @@ int main() {
     fbScene.bind();
     glClearColor(bgColor.x, bgColor.y, bgColor.z, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, winSize.x, winSize.y);
 
     diffuseShader.bind();
     mesh.bind();
@@ -166,7 +181,7 @@ int main() {
         glClearColor(1, 0, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       }
-      glViewport(0, 0, 800, 600);
+      glViewport(0, 0, winSize.x, winSize.y);
       blurShader.bind();
       blurShader.setScalar1f("u_Scale", blurScale);
       const float isHorizontalPass = static_cast<float>(i % 2 == 0);
@@ -199,7 +214,7 @@ int main() {
     // Display final Framebuffer on screen
     glClearColor(1, 0, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, winSize.x, winSize.y);
     fullScreenShader.bind();
     fbScreen.getColorAttachment().bind();
     glBindVertexArray(vao);
