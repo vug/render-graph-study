@@ -33,9 +33,14 @@ struct Scene {
   AmbientLight ambientLight;
 };
 
+struct RenderGraph {
+  std::vector<ws::Framebuffer> framebuffers;
+};
+
 int main() {
   ws::Workshop workshop{800, 600, "Workshop App"};
   glm::uvec2 winSize{workshop.getWindowSize()};
+  RenderGraph renderGraph;
 
   ws::Shader triangleShader{
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.vert"},
@@ -46,17 +51,19 @@ int main() {
   ws::Shader diffuseShader{
       std::filesystem::path{ASSETS_FOLDER / "shaders/diffuse.vert"},
       std::filesystem::path{ASSETS_FOLDER / "shaders/diffuse.frag"}};
-  ws::Framebuffer fbScene{winSize.x, winSize.y};  // Render resolution. Can be smaller than window size.
+  renderGraph.framebuffers.reserve(16);  // so that when the vector resizes returned references continue to work
+  // Render resolution. Can be smaller than window size.
+  ws::Framebuffer& fbScene = renderGraph.framebuffers.emplace_back(winSize.x, winSize.y);
 
   ws::Shader blurShader{
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
       std::filesystem::path{ASSETS_FOLDER / "shaders/blur.frag"}};
-  ws::Framebuffer fbBlur{winSize.x, winSize.y};
+  ws::Framebuffer& fbBlur = renderGraph.framebuffers.emplace_back(winSize.x, winSize.y);
 
-  ws::Shader grayscaleShader{
-      std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
-      std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_grayscale.frag"}};
-  ws::Framebuffer fbGrayscale{winSize.x, winSize.y};
+  // ws::Shader grayscaleShader{
+  //     std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
+  //     std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_grayscale.frag"}};
+  // ws::Framebuffer& fbGrayscale = renderGraph.framebuffers.emplace_back(winSize.x, winSize.y);
 
   ws::Shader fullScreenShader{
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
@@ -85,9 +92,8 @@ int main() {
   while (!workshop.shouldStop()) {
     workshop.beginFrame();
     winSize = workshop.getWindowSize();
-    fbScene.resizeIfNeeded(winSize.x, winSize.y);
-    fbBlur.resizeIfNeeded(winSize.x, winSize.y);
-    fbGrayscale.resizeIfNeeded(winSize.x, winSize.y);
+    for (auto& fb : renderGraph.framebuffers)
+      fb.resizeIfNeeded(winSize.x, winSize.y);
 
     ImGui::Begin("Main");
     if (ImGui::Button("Reload shader")) {
