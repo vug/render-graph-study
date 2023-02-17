@@ -1,9 +1,10 @@
 #version 430
 
-in VertexData {
-  vec3 worldPosition;
-  vec3 worldNormal;
-} v;
+#extension GL_ARB_shading_language_include : require
+
+#include "/lib/VertexData.glsl"
+
+in VertexData v;
 
 uniform vec4 u_Color = vec4(1.0, 1.0, 1.0, 1.0);
 

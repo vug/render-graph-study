@@ -42,6 +42,17 @@ int main() {
   glm::uvec2 winSize{workshop.getWindowSize()};
   RenderGraph renderGraph;
 
+  std::string vertexOutGlsl = R"(
+struct VertexData {
+  vec3 worldPosition;
+  vec3 worldNormal;
+};  
+  )";
+  std::string vertexOutGlslPath = "/lib/VertexData.glsl";
+  glNamedStringARB(GL_SHADER_INCLUDE_ARB, 
+    vertexOutGlslPath.length(), vertexOutGlslPath.data(),
+    vertexOutGlsl.length(), vertexOutGlsl.data());
+
   ws::Shader triangleShader{
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.vert"},
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.frag"}};
