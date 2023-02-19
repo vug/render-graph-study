@@ -49,9 +49,9 @@ int main() {
   ws::Shader solidColorShader{
       std::filesystem::path{ASSETS_FOLDER / "shaders/solid_color.vert"},
       std::filesystem::path{ASSETS_FOLDER / "shaders/solid_color.frag"}};
-  ws::Shader diffuseShader{
-      std::filesystem::path{ASSETS_FOLDER / "shaders/diffuse.vert"},
-      std::filesystem::path{ASSETS_FOLDER / "shaders/diffuse.frag"}};
+  ws::Shader phongShader{
+      std::filesystem::path{ASSETS_FOLDER / "shaders/phong.vert"},
+      std::filesystem::path{ASSETS_FOLDER / "shaders/phong.frag"}};
   renderGraph.framebuffers.reserve(16);  // so that when the vector resizes returned references continue to work
   // Render resolution. Can be smaller than window size.
   ws::Framebuffer& fbScene = renderGraph.framebuffers.emplace_back(winSize.x, winSize.y);
@@ -100,7 +100,7 @@ int main() {
     if (ImGui::Button("Reload shader")) {
       // triangleShader.reload();
       solidColorShader.reload();
-      diffuseShader.reload();
+      phongShader.reload();
       blurShader.reload();
       // grayscaleShader.reload();
       // fullScreenShader.reload();
@@ -154,24 +154,24 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, winSize.x, winSize.y);
 
-    diffuseShader.bind();
+    phongShader.bind();
     mesh.bind();
-    diffuseShader.setMatrix4fv("worldFromObject", glm::value_ptr(meshTransform.getWorldFromObjectMatrix()));
-    diffuseShader.setMatrix4fv("viewFromWorld", glm::value_ptr(cam.getViewFromWorld()));
-    diffuseShader.setMatrix4fv("projectionFromView", glm::value_ptr(cam.getProjectionFromView()));
-    diffuseShader.setScalar1i("numPointLights", scene.pointLights.size());
-    diffuseShader.setScalar1i("numDirectionalLights", scene.directionalLights.size());
-    diffuseShader.setVector3fv("eyePos", glm::value_ptr(cam.getPosition()));
-    diffuseShader.setScalar1f("specularCoeff", specularCoeff);
+    phongShader.setMatrix4fv("worldFromObject", glm::value_ptr(meshTransform.getWorldFromObjectMatrix()));
+    phongShader.setMatrix4fv("viewFromWorld", glm::value_ptr(cam.getViewFromWorld()));
+    phongShader.setMatrix4fv("projectionFromView", glm::value_ptr(cam.getProjectionFromView()));
+    phongShader.setScalar1i("numPointLights", scene.pointLights.size());
+    phongShader.setScalar1i("numDirectionalLights", scene.directionalLights.size());
+    phongShader.setVector3fv("eyePos", glm::value_ptr(cam.getPosition()));
+    phongShader.setScalar1f("specularCoeff", specularCoeff);
     for (size_t i = 0; i < scene.pointLights.size(); ++i)
-      scene.pointLights[i].uploadToShader(diffuseShader, i);
+      scene.pointLights[i].uploadToShader(phongShader, i);
     for (size_t i = 0; i < scene.directionalLights.size(); ++i)
-      scene.directionalLights[i].uploadToShader(diffuseShader, i);
-    scene.hemisphericalLight.uploadToShader(diffuseShader);
-    scene.ambientLight.uploadToShader(diffuseShader);
+      scene.directionalLights[i].uploadToShader(phongShader, i);
+    scene.hemisphericalLight.uploadToShader(phongShader);
+    scene.ambientLight.uploadToShader(phongShader);
     mesh.draw();
     mesh.unbind();
-    diffuseShader.unbind();
+    phongShader.unbind();
     fbScene.unbind();
 
     // Blur Pass Post-Process
