@@ -75,7 +75,7 @@ int main() {
 
   Scene scene;
 
-  ws::DefaultMeshData meshData = ws::loadOBJ(ws::ASSETS_FOLDER / "models/suzanne.obj");
+  ws::DefaultMeshData meshData = ws::loadOBJ(ws::ASSETS_FOLDER / "models/suzanne_smooth.obj");
   ws::Mesh mesh{meshData};
   ws::Transform meshTransform{glm::vec3{0.1, 0.2, 0.3}, glm::vec3{0, 1, 0}, 0, glm::vec3{0.2, 0.2, 0.2}};
 
@@ -120,6 +120,8 @@ int main() {
     ImGui::SliderFloat("pointLight[1].intensity", &scene.pointLights[1].intensity, 0.f, 3.f);
     ImGui::SliderFloat("hemisphericalLight.intensity", &scene.hemisphericalLight.intensity, 0.f, 3.f);
     ImGui::SliderFloat("ambientLight.green", &scene.ambientLight.color.y, 0.f, 1.f);
+    static float specularCoeff = 32.0f;
+    ImGui::SliderFloat("specularCoeff", &specularCoeff, 0.1f, 128.f);
     ImGui::Separator();
 
     static bool shouldShowImGuiDemo = false;
@@ -158,6 +160,9 @@ int main() {
     diffuseShader.setMatrix4fv("viewFromWorld", glm::value_ptr(cam.getViewFromWorld()));
     diffuseShader.setMatrix4fv("projectionFromView", glm::value_ptr(cam.getProjectionFromView()));
     diffuseShader.setScalar1i("numPointLights", scene.pointLights.size());
+    diffuseShader.setScalar1i("numDirectionalLights", scene.directionalLights.size());
+    diffuseShader.setVector3fv("eyePos", glm::value_ptr(cam.getPosition()));
+    diffuseShader.setScalar1f("specularCoeff", specularCoeff);
     for (size_t i = 0; i < scene.pointLights.size(); ++i)
       scene.pointLights[i].uploadToShader(diffuseShader, i);
     for (size_t i = 0; i < scene.directionalLights.size(); ++i)
