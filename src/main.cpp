@@ -23,7 +23,6 @@
 // #include <vivid/vivid.h>
 
 #include <fmt/core.h>
-#include <iostream>
 #include <vector>
 
 struct Scene {
@@ -42,9 +41,7 @@ int main() {
   glm::uvec2 winSize{workshop.getWindowSize()};
   RenderGraph renderGraph;
 
-  ws::Shader::makeNamedStringFromFile("/lib/VertexData.glsl", std::filesystem::path{ASSETS_FOLDER / "shaders/lib/VertexData.glsl"});
-  ws::Shader::makeNamedStringFromFile("/lib/DefaultVertexAttributes.glsl", std::filesystem::path{ASSETS_FOLDER / "shaders/lib/DefaultVertexAttributes.glsl"});
-  ws::Shader::makeNamedStringFromFile("/lib/SceneUniforms.glsl", std::filesystem::path{ASSETS_FOLDER / "shaders/lib/SceneUniforms.glsl"});
+  ws::Shader::makeNamedStringsFromFolder(ASSETS_FOLDER / "shaders/lib");
 
   ws::Shader triangleShader{
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.vert"},
