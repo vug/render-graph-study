@@ -43,6 +43,8 @@ int main() {
   RenderGraph renderGraph;
 
   ws::Shader::makeNamedStringFromFile("/lib/VertexData.glsl", std::filesystem::path{ASSETS_FOLDER / "shaders/lib/VertexData.glsl"});
+  ws::Shader::makeNamedStringFromFile("/lib/DefaultVertexAttributes.glsl", std::filesystem::path{ASSETS_FOLDER / "shaders/lib/DefaultVertexAttributes.glsl"});
+  ws::Shader::makeNamedStringFromFile("/lib/SceneUniforms.glsl", std::filesystem::path{ASSETS_FOLDER / "shaders/lib/SceneUniforms.glsl"});
 
   ws::Shader triangleShader{
       std::filesystem::path{ws::ASSETS_FOLDER / "shaders/triangle_without_vbo.vert"},
