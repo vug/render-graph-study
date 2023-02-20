@@ -164,12 +164,12 @@ int main() {
 
     phongShader.bind();
     mesh.bind();
-    phongShader.setMatrix4fv("worldFromObject", glm::value_ptr(meshTransform.getWorldFromObjectMatrix()));
-    phongShader.setMatrix4fv("viewFromWorld", glm::value_ptr(cam.getViewFromWorld()));
-    phongShader.setMatrix4fv("projectionFromView", glm::value_ptr(cam.getProjectionFromView()));
+    phongShader.setMatrix4fv("worldFromObject", meshTransform.getWorldFromObjectMatrix());
+    phongShader.setMatrix4fv("viewFromWorld", cam.getViewFromWorld());
+    phongShader.setMatrix4fv("projectionFromView", cam.getProjectionFromView());
     phongShader.setScalar1i("numPointLights", scene.pointLights.size());
     phongShader.setScalar1i("numDirectionalLights", scene.directionalLights.size());
-    phongShader.setVector3fv("eyePos", glm::value_ptr(cam.getPosition()));
+    phongShader.setVector3fv("eyePos", cam.getPosition());
     // phongShader.setScalar1f("specularCoeff", specularCoeff);
     phongMaterial.uploadParameters();
     for (size_t i = 0; i < scene.pointLights.size(); ++i)
