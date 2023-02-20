@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 
+#include <cassert>
 #include <string>
 #include <unordered_map>
 #include <variant>
@@ -19,6 +20,8 @@ struct overloaded : Ts... {
   using Ts::operator()...;
 };
 
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
 class Material {
  private:
   const ws::Shader& shader;
@@ -29,15 +32,16 @@ class Material {
  public:
   Material(const ws::Shader& shader);
 
+  // To Consider: Maybe not needed, maybe always add parameters with a provided value
   template <ParamC P>
   void addParameter(std::string name) {
-    parameters.insert({name, P{}});
+    assert(!parameters.contains(name));
+    parameters.emplace(name, P{});
   }
 
-  template <ParamC P>
-  void setParameter(std::string name, P value) {
-    parameters[name] = value;
-  }
+  void addParameter(std::string name, ParamT value);
+  void setParameter(std::string name, ParamT value);
 
   void uploadParameters();
+  std::string parametersToString();
 };

@@ -72,7 +72,8 @@ int main() {
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_texture_sampler.frag"}};
 
   Material phongMaterial{phongShader};
-  phongMaterial.addParameter<float>("specularCoeff");
+  // phongMaterial.addParameter<float>("specularCoeff");
+  phongMaterial.addParameter("specularCoeff", 2.0f);
 
   uint32_t vao;
   glGenVertexArrays(1, &vao);
@@ -127,7 +128,9 @@ int main() {
     static float specularCoeff = 32.0f;
     ImGui::SliderFloat("specularCoeff", &specularCoeff, 0.1f, 128.f);
     phongMaterial.setParameter("specularCoeff", specularCoeff);
+    std::string paramsStr = phongMaterial.parametersToString();
     ImGui::Separator();
+    ImGui::Text(paramsStr.c_str());
 
     static bool shouldShowImGuiDemo = false;
     ImGui::Checkbox("Show Demo", &shouldShowImGuiDemo);
