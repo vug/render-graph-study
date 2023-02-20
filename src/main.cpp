@@ -1,10 +1,10 @@
 #include "Assets.hpp"
 #include "Lights.hpp"
-#include "Material.hpp"
 
 #include <Workshop/Assets.hpp>
 #include <Workshop/Camera.hpp>
 #include <Workshop/Framebuffer.hpp>
+#include <Workshop/Material.hpp>
 #include <Workshop/Model.hpp>
 #include <Workshop/Shader.hpp>
 #include <Workshop/Texture.hpp>
@@ -71,7 +71,7 @@ int main() {
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_texture_sampler.frag"}};
 
-  Material phongMaterial{phongShader};
+  ws::Material phongMaterial{phongShader};
   // phongMaterial.addParameter<float>("specularCoeff");
   phongMaterial.addParameter("specularCoeff", 2.0f);
 
