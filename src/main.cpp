@@ -1,5 +1,6 @@
 #include "Assets.hpp"
 #include "Lights.hpp"
+#include "Material.hpp"
 
 #include <Workshop/Assets.hpp>
 #include <Workshop/Camera.hpp>
@@ -70,6 +71,9 @@ int main() {
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_texture_sampler.frag"}};
 
+  Material phongMaterial{phongShader};
+  phongMaterial.addParameter<float>("specularCoeff");
+
   uint32_t vao;
   glGenVertexArrays(1, &vao);
 
@@ -122,6 +126,7 @@ int main() {
     ImGui::SliderFloat("ambientLight.green", &scene.ambientLight.color.y, 0.f, 1.f);
     static float specularCoeff = 32.0f;
     ImGui::SliderFloat("specularCoeff", &specularCoeff, 0.1f, 128.f);
+    phongMaterial.setParameter("specularCoeff", specularCoeff);
     ImGui::Separator();
 
     static bool shouldShowImGuiDemo = false;
@@ -162,7 +167,8 @@ int main() {
     phongShader.setScalar1i("numPointLights", scene.pointLights.size());
     phongShader.setScalar1i("numDirectionalLights", scene.directionalLights.size());
     phongShader.setVector3fv("eyePos", glm::value_ptr(cam.getPosition()));
-    phongShader.setScalar1f("specularCoeff", specularCoeff);
+    // phongShader.setScalar1f("specularCoeff", specularCoeff);
+    phongMaterial.uploadParameters();
     for (size_t i = 0; i < scene.pointLights.size(); ++i)
       scene.pointLights[i].uploadToShader(phongShader, i);
     for (size_t i = 0; i < scene.directionalLights.size(); ++i)

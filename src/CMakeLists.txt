@@ -10,6 +10,7 @@ endif()
 add_executable(${TARGET}
   main.cpp
   Lights.hpp Lights.cpp
+  Material.hpp Material.cpp
 )
 
 target_link_libraries(${TARGET} PRIVATE
