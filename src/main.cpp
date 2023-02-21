@@ -26,7 +26,14 @@
 #include <fmt/core.h>
 #include <vector>
 
+struct Object {
+  ws::Transform transform;
+  ws::Mesh mesh;
+  ws::Material material;
+};
+
 struct Scene {
+  std::vector<Object> objects;
   std::vector<DirectionalLight> directionalLights;
   std::vector<PointLight> pointLights;
   HemisphericalLight hemisphericalLight;
@@ -71,18 +78,17 @@ int main() {
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_without_vbo.vert"},
       std::filesystem::path{ASSETS_FOLDER / "shaders/fullscreen_quad_texture_sampler.frag"}};
 
-  ws::Material phongMaterial{phongShader};
-  // phongMaterial.addParameter<float>("specularCoeff");
-  phongMaterial.addParameter("specularCoeff", 2.0f);
-
   uint32_t vao;
   glGenVertexArrays(1, &vao);
 
   Scene scene;
 
-  ws::DefaultMeshData meshData = ws::loadOBJ(ws::ASSETS_FOLDER / "models/suzanne_smooth.obj");
-  ws::Mesh mesh{meshData};
-  ws::Transform meshTransform{glm::vec3{0.1, 0.2, 0.3}, glm::vec3{0, 1, 0}, 0, glm::vec3{0.2, 0.2, 0.2}};
+  Object monkey {
+    .transform = {glm::vec3{0.1, 0.2, 0.3}, glm::vec3{0, 1, 0}, 0, glm::vec3{0.2, 0.2, 0.2}},
+    .mesh = {ws::loadOBJ(ws::ASSETS_FOLDER / "models/suzanne_smooth.obj")},
+    .material = {phongShader},
+  };
+  monkey.material.addParameter("specularCoeff", 2.0f); // .addParameter<float>("specularCoeff");
 
   ws::PerspectiveCamera3D cam;
   ws::AutoOrbitingCamera3DViewController orbitingCamController{cam};
@@ -105,7 +111,7 @@ int main() {
     if (ImGui::Button("Reload shader")) {
       // triangleShader.reload();
       solidColorShader.reload();
-      phongShader.reload();
+      monkey.material.shader.reload();
       blurShader.reload();
       // grayscaleShader.reload();
       // fullScreenShader.reload();
@@ -127,8 +133,8 @@ int main() {
     ImGui::SliderFloat("ambientLight.green", &scene.ambientLight.color.y, 0.f, 1.f);
     static float specularCoeff = 32.0f;
     ImGui::SliderFloat("specularCoeff", &specularCoeff, 0.1f, 128.f);
-    phongMaterial.setParameter("specularCoeff", specularCoeff);
-    std::string paramsStr = phongMaterial.parametersToString();
+    monkey.material.setParameter("specularCoeff", specularCoeff);
+    std::string paramsStr = monkey.material.parametersToString();
     ImGui::Separator();
     ImGui::Text(paramsStr.c_str());
 
@@ -139,7 +145,7 @@ int main() {
     ImGui::End();
 
     static float t = 0.0f;
-    meshTransform.rotation = glm::angleAxis(t, glm::vec3{0, 1, 0});
+    monkey.transform.rotation = glm::angleAxis(t, glm::vec3{0, 1, 0});
     t += 0.01f;
 
     {
@@ -162,25 +168,25 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, winSize.x, winSize.y);
 
-    phongShader.bind();
-    mesh.bind();
-    phongShader.setMatrix4("worldFromObject", meshTransform.getWorldFromObjectMatrix());
-    phongShader.setMatrix4("viewFromWorld", cam.getViewFromWorld());
-    phongShader.setMatrix4("projectionFromView", cam.getProjectionFromView());
-    phongShader.setInteger("numPointLights", scene.pointLights.size());
-    phongShader.setInteger("numDirectionalLights", scene.directionalLights.size());
-    phongShader.setVector3("eyePos", cam.getPosition());
-    // phongShader.setScalar1f("specularCoeff", specularCoeff);
-    phongMaterial.uploadParameters();
+    monkey.material.shader.bind();
+    monkey.mesh.bind();
+    monkey.material.shader.setMatrix4("worldFromObject", monkey.transform.getWorldFromObjectMatrix());
+    monkey.material.shader.setMatrix4("viewFromWorld", cam.getViewFromWorld());
+    monkey.material.shader.setMatrix4("projectionFromView", cam.getProjectionFromView());
+    monkey.material.shader.setInteger("numPointLights", scene.pointLights.size());
+    monkey.material.shader.setInteger("numDirectionalLights", scene.directionalLights.size());
+    monkey.material.shader.setVector3("eyePos", cam.getPosition());
+    // monkey.material.shader.setScalar1f("specularCoeff", specularCoeff);
+    monkey.material.uploadParameters();
     for (size_t i = 0; i < scene.pointLights.size(); ++i)
-      scene.pointLights[i].uploadToShader(phongShader, i);
+      scene.pointLights[i].uploadToShader(monkey.material.shader, i);
     for (size_t i = 0; i < scene.directionalLights.size(); ++i)
-      scene.directionalLights[i].uploadToShader(phongShader, i);
-    scene.hemisphericalLight.uploadToShader(phongShader);
-    scene.ambientLight.uploadToShader(phongShader);
-    mesh.draw();
-    mesh.unbind();
-    phongShader.unbind();
+      scene.directionalLights[i].uploadToShader(monkey.material.shader, i);
+    scene.hemisphericalLight.uploadToShader(monkey.material.shader);
+    scene.ambientLight.uploadToShader(monkey.material.shader);
+    monkey.mesh.draw();
+    monkey.mesh.unbind();
+    monkey.material.shader.unbind();
     fbScene.unbind();
 
     // Blur Pass Post-Process
