@@ -164,12 +164,12 @@ int main() {
 
     phongShader.bind();
     mesh.bind();
-    phongShader.setMatrix4fv("worldFromObject", meshTransform.getWorldFromObjectMatrix());
-    phongShader.setMatrix4fv("viewFromWorld", cam.getViewFromWorld());
-    phongShader.setMatrix4fv("projectionFromView", cam.getProjectionFromView());
-    phongShader.setScalar1i("numPointLights", scene.pointLights.size());
-    phongShader.setScalar1i("numDirectionalLights", scene.directionalLights.size());
-    phongShader.setVector3fv("eyePos", cam.getPosition());
+    phongShader.setMatrix4("worldFromObject", meshTransform.getWorldFromObjectMatrix());
+    phongShader.setMatrix4("viewFromWorld", cam.getViewFromWorld());
+    phongShader.setMatrix4("projectionFromView", cam.getProjectionFromView());
+    phongShader.setInteger("numPointLights", scene.pointLights.size());
+    phongShader.setInteger("numDirectionalLights", scene.directionalLights.size());
+    phongShader.setVector3("eyePos", cam.getPosition());
     // phongShader.setScalar1f("specularCoeff", specularCoeff);
     phongMaterial.uploadParameters();
     for (size_t i = 0; i < scene.pointLights.size(); ++i)
@@ -195,9 +195,9 @@ int main() {
       }
       glViewport(0, 0, winSize.x, winSize.y);
       blurShader.bind();
-      blurShader.setScalar1f("u_Scale", blurScale);
+      blurShader.setFloat("u_Scale", blurScale);
       const float isHorizontalPass = static_cast<float>(i % 2 == 0);
-      blurShader.setScalar1f("u_Horizontal", isHorizontalPass);
+      blurShader.setFloat("u_Horizontal", isHorizontalPass);
       fbInput.getColorAttachment().bind();
       glBindVertexArray(vao);
       glDrawArrays(GL_TRIANGLES, 0, 6);
