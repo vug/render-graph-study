@@ -1,9 +1,9 @@
 #include "Assets.hpp"
-#include "Lights.hpp"
 
 #include <Workshop/Assets.hpp>
 #include <Workshop/Camera.hpp>
 #include <Workshop/Framebuffer.hpp>
+#include <Workshop/Lights.hpp>
 #include <Workshop/Material.hpp>
 #include <Workshop/Model.hpp>
 #include <Workshop/Shader.hpp>
@@ -34,10 +34,10 @@ struct Object {
 
 struct Scene {
   std::vector<Object> objects;
-  std::vector<DirectionalLight> directionalLights;
-  std::vector<PointLight> pointLights;
-  HemisphericalLight hemisphericalLight;
-  AmbientLight ambientLight;
+  std::vector<ws::DirectionalLight> directionalLights;
+  std::vector<ws::PointLight> pointLights;
+  ws::HemisphericalLight hemisphericalLight;
+  ws::AmbientLight ambientLight;
 };
 
 struct RenderGraph {
