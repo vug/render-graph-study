@@ -1,3 +1,5 @@
+#pragma once
+
 #include <filesystem>
 
 std::filesystem::path ASSETS_FOLDER = "@ASSETS_FOLDER@";
