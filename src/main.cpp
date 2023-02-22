@@ -1,4 +1,6 @@
 #include "Assets.hpp"
+#include "Object.hpp"
+#include "Scene.hpp"
 
 #include <Workshop/Assets.hpp>
 #include <Workshop/Camera.hpp>
@@ -25,20 +27,6 @@
 
 #include <fmt/core.h>
 #include <vector>
-
-struct Object {
-  ws::Transform transform;
-  ws::Mesh mesh;
-  ws::Material material;
-};
-
-struct Scene {
-  std::vector<Object> objects;
-  std::vector<ws::DirectionalLight> directionalLights;
-  std::vector<ws::PointLight> pointLights;
-  ws::HemisphericalLight hemisphericalLight;
-  ws::AmbientLight ambientLight;
-};
 
 struct RenderGraph {
   std::vector<ws::Framebuffer> framebuffers;

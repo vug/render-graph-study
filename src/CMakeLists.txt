@@ -9,6 +9,8 @@ endif()
 
 add_executable(${TARGET}
   main.cpp
+  Object.hpp
+  Scene.hpp
 )
 
 target_link_libraries(${TARGET} PRIVATE
