@@ -71,12 +71,17 @@ int main() {
 
   Scene scene;
 
-  Object monkey {
+  ws::Material monkeyMaterial{phongShader};
+  monkeyMaterial.addParameter("specularCoeff", 2.0f); // .addParameter<float>("specularCoeff");
+
+  ws::Mesh monkeyMesh = {ws::loadOBJ(ws::ASSETS_FOLDER / "models/suzanne_smooth.obj")};
+  Object tmp = Object { // so weird. If it's Object tmp = {...} ~Object hence ~Mesh are called
+    .name = "Monkey",
     .transform = {glm::vec3{0.1, 0.2, 0.3}, glm::vec3{0, 1, 0}, 0, glm::vec3{0.2, 0.2, 0.2}},
-    .mesh = {ws::loadOBJ(ws::ASSETS_FOLDER / "models/suzanne_smooth.obj")},
-    .material = {phongShader},
+    .mesh = monkeyMesh,
+    .material = monkeyMaterial, // Copy constructor?
   };
-  monkey.material.addParameter("specularCoeff", 2.0f); // .addParameter<float>("specularCoeff");
+  Object& monkey = scene.objects.emplace_back(tmp);  
 
   ws::PerspectiveCamera3D cam;
   ws::AutoOrbitingCamera3DViewController orbitingCamController{cam};
