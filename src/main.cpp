@@ -81,7 +81,7 @@ int main() {
     std::move(monkeyMesh),
     monkeyMaterial // Copy constructor?
   };
-  Object& monkey = scene.objects.emplace_back(std::move(tmp));  
+  Object& monkey = scene.objects.push_back(std::move(tmp));  
 
   ws::PerspectiveCamera3D cam;
   ws::AutoOrbitingCamera3DViewController orbitingCamController{cam};
