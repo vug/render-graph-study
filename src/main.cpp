@@ -74,14 +74,14 @@ int main() {
   ws::Material monkeyMaterial{phongShader};
   monkeyMaterial.addParameter("specularCoeff", 2.0f); // .addParameter<float>("specularCoeff");
 
-  ws::Mesh monkeyMesh = {ws::loadOBJ(ws::ASSETS_FOLDER / "models/suzanne_smooth.obj")};
-  Object tmp = Object { // so weird. If it's Object tmp = {...} ~Object hence ~Mesh are called
-    .name = "Monkey",
-    .transform = {glm::vec3{0.1, 0.2, 0.3}, glm::vec3{0, 1, 0}, 0, glm::vec3{0.2, 0.2, 0.2}},
-    .mesh = monkeyMesh,
-    .material = monkeyMaterial, // Copy constructor?
+  ws::Mesh monkeyMesh {ws::loadOBJ(ws::ASSETS_FOLDER / "models/suzanne_smooth.obj")};
+  Object tmp { // so weird. If it's Object tmp = {...} ~Object hence ~Mesh are called
+    "Monkey",
+    {glm::vec3{0.1, 0.2, 0.3}, glm::vec3{0, 1, 0}, 0, glm::vec3{0.2, 0.2, 0.2}},
+    std::move(monkeyMesh),
+    monkeyMaterial // Copy constructor?
   };
-  Object& monkey = scene.objects.emplace_back(tmp);  
+  Object& monkey = scene.objects.emplace_back(std::move(tmp));  
 
   ws::PerspectiveCamera3D cam;
   ws::AutoOrbitingCamera3DViewController orbitingCamController{cam};
@@ -236,6 +236,5 @@ int main() {
 
     workshop.endFrame();
   }
-
   return 0;
 }
