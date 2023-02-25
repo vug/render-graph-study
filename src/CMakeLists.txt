@@ -10,7 +10,7 @@ endif()
 add_executable(${TARGET}
   main.cpp
   Object.hpp
-  Scene.hpp
+  Scene.hpp Scene.cpp
 )
 
 target_link_libraries(${TARGET} PRIVATE

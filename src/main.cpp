@@ -69,7 +69,7 @@ int main() {
   uint32_t vao;
   glGenVertexArrays(1, &vao);
 
-  Scene scene;
+  ws::Scene scene;
 
   ws::Material monkeyMaterial{phongShader};
   monkeyMaterial.addParameter("specularCoeff", 2.0f);  // .addParameter<float>("specularCoeff");
@@ -90,8 +90,7 @@ int main() {
       "Torus",
       ws::Transform{glm::vec3{0.3, 0.2, 0.1}, glm::vec3{1, 0, 0}, M_PI / 2, glm::vec3{0.2, 0.2, 0.2}},
       std::move(torusMesh),
-      monkeyMaterial
-  );
+      monkeyMaterial);
 
   Object& monkey = scene.objects[monkeyIx];
 
@@ -173,30 +172,7 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, winSize.x, winSize.y);
 
-    for (Object& obj : scene.objects) {
-      const ws::Mesh& mesh = obj.mesh;
-      const ws::Material& material = obj.material;
-      const ws::Shader& shader = material.shader;
-      shader.bind();
-      mesh.bind();
-      shader.setMatrix4("worldFromObject", obj.transform.getWorldFromObjectMatrix());
-      shader.setMatrix4("viewFromWorld", cam.getViewFromWorld());
-      shader.setMatrix4("projectionFromView", cam.getProjectionFromView());
-      shader.setInteger("numPointLights", scene.pointLights.size());
-      shader.setInteger("numDirectionalLights", scene.directionalLights.size());
-      shader.setVector3("eyePos", cam.getPosition());
-      // shader.setScalar1f("specularCoeff", specularCoeff);
-      material.uploadParameters();
-      for (size_t i = 0; i < scene.pointLights.size(); ++i)
-        scene.pointLights[i].uploadToShader(shader, i);
-      for (size_t i = 0; i < scene.directionalLights.size(); ++i)
-        scene.directionalLights[i].uploadToShader(shader, i);
-      scene.hemisphericalLight.uploadToShader(shader);
-      scene.ambientLight.uploadToShader(shader);
-      mesh.draw();
-      mesh.unbind();
-      shader.unbind();
-    }
+    scene.draw(cam);
     fbScene.unbind();
 
     // Blur Pass Post-Process
