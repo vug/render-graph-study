@@ -27,6 +27,8 @@
 
 #include <fmt/core.h>
 #include <vector>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 struct RenderGraph {
   std::vector<ws::Framebuffer> framebuffers;
